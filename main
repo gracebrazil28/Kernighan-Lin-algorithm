@@ -9,12 +9,14 @@ use Data::Dumper qw(Dumper);
 #                 MAIN PROGRAM                       #
 ########                                    ##########
 
+# This function will open the input file and make an array of hashes 
+# Access each node by $vertical[number] 
+# Access the connection by $vertical[number]{'1'}
+# Access the weight by $vertical[number]{'2'}
+# This will also randomly assign if the node is in P0 or P1
+# Access the partition assignment by $vertical[number]{partition}
 
-ParseInputData();
 
-##
-
-sub ParseInputData {
 
 #Read from input file
 my $dirname = 'C:\input';
@@ -35,7 +37,7 @@ foreach my $file (glob("$dirname/*")) {
    print "Reading input file $file . . \n";
    my $j = 0;
    while(my $line = <$filename>){
-         my $fields_ref = +{};
+         my $array_ref = +{};
          my $filebasename = basename($filename);
         
          $lineNum +=1;
@@ -55,16 +57,18 @@ foreach my $file (glob("$dirname/*")) {
     
             foreach my $i (0..2){
                   $horizontal[$i] = $fields[$i];
-                  $fields_ref -> {$i} = $horizontal[$i];
-                 #$fields_ref->{ $filename }{$i} = $horizontal[$i];
-                 #$fields_ref->{ $filebasename }{$i} = $horizontal[$i];
+                  $array_ref -> {$i} = $horizontal[$i];
+                 #Trying to extending this to labeling them with the input filename
+                 #$array_ref->{ $filename }{$i} = $horizontal[$i];
+                 #$array_ref->{ $filebasename }{$i} = $horizontal[$i];
+                #$array_ref -> {partition} = int rand(2);
+                 
             }
 
-         push @vertical, $fields_ref;
-         print "Printing vertical\n";
-         #rint Dumper (@vertical);
+         push @vertical, $array_ref;
+
          $j += 1;
-         print "Line finished reading\n";    
+        #print "Line finished reading\n";    
         
         } #close reading body statement   
     
@@ -75,54 +79,34 @@ foreach my $file (glob("$dirname/*")) {
   #print Dumper (@numNodes);
   #print Dumper (@numEdges);
   #print "3rd column 6th row $vertical[5]{ $filename }{'2'}\n";
+  #print "Look at partition $vertical[5]{partition}\n";
   #print "*********** Printing the expected 2x2 array\n";
    print Dumper (@vertical);
-   
+      
    #Let me know when EOF is reached
    print "File Ended.. Opening next file..\n";
    close($filename);
-   AssignPartition();
-   ComputeCut();
-   GenerateOutputData();
+   
+   # Assign the nodes to a partition randomly  
+   my @partition = map {int rand(2)} (1.. $numEdges[1]);
+   print Dumper (@partition);
+
+   # Compute the cut
+   my $cCut = 0;
+   foreach my $item(@vertical){
+      #compare the two nodes connected if they are in the same partition
+	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
+            $cCut += $item->{'2'};
+	}  
+    
+   }
+   
+  print "Actual cut for the given partition $cCut\n";
+   
+
+
    
    exit; #only do the first file for now
 }
 
 closedir(DIR);
-
-}
-
-##
-
-sub AssignPartition{
-      
-      
-      
-       
-     
-      
-      
-      
- }
- 
- ##
- 
-sub ComputeCut{
-     
-     
-     
-     
-     
-      
-}
-
-##
-
-GenerateOutputData {
-      
-      
-      
-      
-}
- 
- 
