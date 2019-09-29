@@ -1,0 +1,128 @@
+#! /usr/bin/perl
+use warnings;
+use strict;
+use utf8;
+use File::Basename;
+use Data::Dumper qw(Dumper);
+
+########                                    ##########
+#                 MAIN PROGRAM                       #
+########                                    ##########
+
+
+ParseInputData();
+
+##
+
+sub ParseInputData {
+
+#Read from input file
+my $dirname = 'C:\input';
+opendir(DIR, $dirname) or die "Could not open $dirname\n";
+
+#go through all the files within the input folder
+foreach my $file (glob("$dirname/*")) {
+
+   #apply algorithm to the first file for test
+   open my $filename, "<", $file or die "can't open '$file'\n";
+   #create an array that will number of edges and nodes
+   my @numNodes = (); 
+   my @numEdges = ();
+   my @horizontal = ();
+   my @vertical = ();
+   my $lineNum=0;
+   
+   print "Reading input file $file . . \n";
+   my $j = 0;
+   while(my $line = <$filename>){
+         my $fields_ref = +{};
+         my $filebasename = basename($filename);
+        
+         $lineNum +=1;
+         chomp $line;
+         #first line
+         if ($lineNum == 1){
+               @numNodes = split (/ /, $line);
+         }
+         #second line
+         elsif ($lineNum ==2){
+               @numEdges = split (/ /, $line);
+         }
+         #body
+         else {
+         #create array of arrays
+         my @fields = split / /, $line; 
+    
+            foreach my $i (0..2){
+                  $horizontal[$i] = $fields[$i];
+                  $fields_ref -> {$i} = $horizontal[$i];
+                 #$fields_ref->{ $filename }{$i} = $horizontal[$i];
+                 #$fields_ref->{ $filebasename }{$i} = $horizontal[$i];
+            }
+
+         push @vertical, $fields_ref;
+         print "Printing vertical\n";
+         #rint Dumper (@vertical);
+         $j += 1;
+         print "Line finished reading\n";    
+        
+        } #close reading body statement   
+    
+   } #close while open
+
+
+  #Checking values
+  #print Dumper (@numNodes);
+  #print Dumper (@numEdges);
+  #print "3rd column 6th row $vertical[5]{ $filename }{'2'}\n";
+  #print "*********** Printing the expected 2x2 array\n";
+   print Dumper (@vertical);
+   
+   #Let me know when EOF is reached
+   print "File Ended.. Opening next file..\n";
+   close($filename);
+   AssignPartition();
+   ComputeCut();
+   GenerateOutputData();
+   
+   exit; #only do the first file for now
+}
+
+closedir(DIR);
+
+}
+
+##
+
+sub AssignPartition{
+      
+      
+      
+       
+     
+      
+      
+      
+ }
+ 
+ ##
+ 
+sub ComputeCut{
+     
+     
+     
+     
+     
+      
+}
+
+##
+
+GenerateOutputData {
+      
+      
+      
+      
+}
+ 
+ 
