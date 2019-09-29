@@ -11,11 +11,7 @@ use Data::Dumper qw(Dumper);
 
 # This function will open the input file and make an array of hashes 
 # Access each node by $vertical[number] 
-# Access the connection by $vertical[number]{'1'}
 # Access the weight by $vertical[number]{'2'}
-# This will also randomly assign if the node is in P0 or P1
-# Access the partition assignment by $vertical[number]{partition}
-
 
 
 #Read from input file
