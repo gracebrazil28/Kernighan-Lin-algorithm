@@ -108,8 +108,9 @@ foreach my $file (glob("$dir/*")) {
  
    $initialCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the initial cut in the main program: $initialCut\n";
- 
 
+
+ ## TODO: make sure that the swapping is good ##
  #Continue to swap 1-2, 2-3, 3-4, until n-1 - n
  while ($counter != $numEdges[1]) {
  
@@ -130,6 +131,15 @@ foreach my $file (glob("$dir/*")) {
 
   print "Printing gain array \n";
   print Dumper (@gain); 
+  
+  
+  ##TODO: Keep the swap that has gotten the greater gain
+  
+  ##TODO: Swap the items in the actual data array
+  
+  ##TODO: Create the Output file based on the swap
+  
+  
   exit; #only do the first file for now
 
 
@@ -162,7 +172,6 @@ sub computeCutSet {
 sub swapNodes {
   #actually getting an array reference to the original partition array
   my $partition = @{$_[0]};	
-
 
   foreach my $item (@partition){
      	# compare the two nodes connected if they are in the same partition
