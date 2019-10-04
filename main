@@ -74,10 +74,8 @@ foreach my $file (glob("$dir/*")) {
   #Checking values
   #print Dumper (@numNodes);
   #print Dumper (@numEdges);
-  #print "3rd column 6th row $vertical[5]{ $filename }{'2'}\n";
-  #print "Look at partition $vertical[5]{partition}\n";
   #print "*********** Printing the expected 2x2 array\n";
-   print Dumper (@vertical);
+  #print Dumper (@vertical);
       
    #Let me know when EOF is reached
    print "File Ended.. Opening next file..\n";
@@ -97,30 +95,44 @@ foreach my $file (glob("$dir/*")) {
    print Dumper (@partition);
    
    #Create a new array for partition status, start with everything unlocked
+   @gain= map {0} (1.. $numEdges[1]);
+   $counter = 0;
+   #to check if locked/unlocked use $status[$counter]
+   
+   #Create a new array for partition status, start with everything unlocked
    #status 0 = unlocked, status 1 = locked
-   my @status= map {0} (1.. $numEdges[1]);
-   print "The original status......\n";
-   print Dumper (@status);
+   #my @status= map {0} (1.. $numEdges[1]);
+   #print "The original status......\n";
+   #print Dumper (@status);
+   
  
    $initialCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the initial cut in the main program: $initialCut\n";
  
-## TODO: fix the swapNode subroutine ##
-## It should be able to swap the nodes without removing an array
-## It should also update the status of the nodes after the swap as locked in the @status array
+
+ #Continue to swap 1-2, 2-3, 3-4, until n-1 - n
+ while ($counter != $numEdges[1]) {
  
-   print "Swapping nodes...... \n";
+   print "***  Swapping nodes...... \n";
    &swapNodes(\@partition);
+   print "Printing the swapped partition in the main function...... \n";
    print Dumper (@partition);
   		
    # calculate the new cutset
    $newCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the cutsize after swapping nodes: $newCut \n";
 
-   $gain = $newCut - $initialCut;
-   print "The gain of the swap is: $gain \n";
- 
+   $gain[$counter] = $newCut - $initialCut;
+   print "The gain of the swap is: $gain[$counter] \n";
+
+	$counter += 1;
+	}
+
+  print "Printing gain array \n";
+  print Dumper (@gain); 
   exit; #only do the first file for now
+
+
 }
 
 closedir(DIR);
@@ -136,10 +148,8 @@ sub computeCutSet {
    my $cutSize = 0;
    my @vertical = @{$vertical};
    my @partition = @{$partition};
-   $statusCounter = 0;
    
    foreach my $item(@vertical){
-   # compare the two nodes connected if they are in the same partition
 	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
             $cutSize += $item->{'2'};
             #print "The cut has increased to: $initialCut \n";
@@ -150,19 +160,16 @@ sub computeCutSet {
 }
 
 sub swapNodes {
-  my $partition = shift;
-  shift (@$partition);
+  #actually getting an array reference to the original partition array
+  my $partition = @{$_[0]};	
+
+
   foreach my $item (@partition){
+     	# compare the two nodes connected if they are in the same partition
   		if ($partition[$item] != $partition[$item+1]){
-  		    ($partition[$item], $partition[$item+1]) = ($partition[$item+1], $partition[$item])
+			($partition[$item], $partition[$item+1]) = ($partition[$item+1], $partition[$item])
   		}
-  		else {
-	 	 # if it got to here, meaning the two adjacent nodes are the same 
-	  	 $statusCounter += 1;
-        } 
   }
-  		
-print "Printing swapped partition in the subroutine\n";
-print Dumper (@partition);
-print "The status counter value is : $statusCounter\n";
+#print "Printing swapped partition in the subroutine\n";
+#print Dumper (@partition);
 }
