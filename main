@@ -1,6 +1,6 @@
 #! /usr/bin/perl
 use warnings;
-use strict;
+#use strict;
 use utf8;
 use File::Basename;
 use Data::Dumper qw(Dumper);
@@ -13,13 +13,13 @@ use Data::Dumper qw(Dumper);
 # Access each node by $vertical[number] 
 # Access the weight by $vertical[number]{'2'}
 
+my $dir = "/Users/preciousbrazil/Desktop/Sandbox/in";
+opendir(DIR, $dir) or die "Could not open $dir\n";
+#my @files = grep {-f $_ } glob ("$dir");
 
-#Read from input file
-my $dirname = 'C:\input';
-opendir(DIR, $dirname) or die "Could not open $dirname\n";
 
 #go through all the files within the input folder
-foreach my $file (glob("$dirname/*")) {
+foreach my $file (glob("$dir/*")) {
 
    #apply algorithm to the first file for test
    open my $filename, "<", $file or die "can't open '$file'\n";
@@ -83,26 +83,89 @@ foreach my $file (glob("$dirname/*")) {
    print "File Ended.. Opening next file..\n";
    close($filename);
    
-   # Assign the nodes to a partition randomly  
-   my @partition = map {int rand(2)} (1.. $numEdges[1]);
+   # Assign the nodes to a partition 
+   my $partition_assign = $numEdges[1]/2;
+   #print "Partition assignment $partition_assign \n";
+   
+   my @partition0 = map {0} (1.. $numEdges[1]/2);
+   my @partition1 = map {1} (1.. $numEdges[1]/2);
+   #combine the partition vector list
+   push @partition0, @partition1;
+   #randomize the partition assignment
+   @partition = sort { (-1, 1) [rand(2)] } @partition0;
    print Dumper (@partition);
-
-   # Compute the cut
-   my $cCut = 0;
-   foreach my $item(@vertical){
-      #compare the two nodes connected if they are in the same partition
-	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
-            $cCut += $item->{'2'};
-	}  
-    
-   }
    
-  print "Actual cut for the given partition $cCut\n";
-   
+ 
+   $initialCut = &computeCutSet(\@vertical, \@partition);
+   print "The value of the initial cut in the main program: $initialCut\n";
+ 	 
+   print "Swapping nodes...... \n";
+   &swapNodes(\@partition);
+   print Dumper (@partition);
+  		
+   # calculate the new cutset
+   $newCut = &computeCutSet(\@vertical, \@partition);
+   print "The value of the cutsize after swapping nodes: $newCut \n";
 
-
-   
-   exit; #only do the first file for now
+   $gain = $newCut - $initialCut;
+   print "The gain of the swap is: $gain \n";
+ 
+  exit; #only do the first file for now
 }
 
 closedir(DIR);
+
+########                                    ##########
+#                   SUBROUTINES                      #
+########                                    ##########
+
+sub computeCutSet {
+
+   # Compute the cut
+   my ($vertical, $partition) = @_;
+   my $cutSize = 0;
+   my @vertical = @{$vertical};
+   my @partition = @{$partition};
+   
+   foreach my $item(@vertical){
+   # compare the two nodes connected if they are in the same partition
+	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
+            $cutSize += $item->{'2'};
+            #print "The cut has increased to: $initialCut \n";
+	}  
+    
+    
+   }
+   #print "The final value of the initial cut is: $initialCut\n";
+   return $cutSize;
+}
+
+sub swapNodes {
+  my $partition = shift;
+  shift (@$partition);
+  foreach my $item (@partition){
+  		if ($partition[$item] != $partition[$item+1]){
+  		    ($partition[$item], $partition[$item+1]) = ($partition[$item+1], $partition[$item])
+  		}
+  }
+  		
+#print "Printing swapped partition in the subroutine\n";
+#print Dumper (@partition);
+}
+
+sub computeNewCutSet {
+
+   my ($vertical, $partition) = @_;
+   my $newCut = 0;
+   my @vertical = @{$vertical};
+   my @partition = @{$partition}; 
+   foreach my $item(@vertical){
+      #compare the two nodes connected if they are in the same partition
+	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
+            $newCut += $item->{'2'};
+	} 
+	 
+   }
+
+	return $newcut;
+}
