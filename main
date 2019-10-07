@@ -113,9 +113,6 @@ foreach my $file (glob("$dir/*")) {
    $initialCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the initial cut in the main program: $initialCut\n";
 
-
- ## TODO: make sure that the swapping is good ##
- #Continue to swap 1-2, 2-3, 3-4, until n-1 - n
  while ($counter != $numEdges[1]) {
  
    print "***  Swapping nodes...... \n";
@@ -146,8 +143,8 @@ foreach my $file (glob("$dir/*")) {
   ##TODO: send the new partition to write Output
     open my $output, '>', '01.out';
     print {$output} "cut " . "\n";
-    print {$output} " Partition assignment here " . "\n";
-    print {$output} " Parition assignment here" . "\n";
+    print {$output} "Partition assignment here " . "\n";
+    print {$output} "Parition assignment here" . "\n";
     close $output;
   
   print "\n\n*************************************************************\n\n";
@@ -174,10 +171,7 @@ sub computeCutSet {
    print Dumper (@partition);  
 
    foreach my $item(@vertical){
-    #print "$item->{'0'}th element  compare to $item->{'1'}th element\n";
-    #print "$partition[$item->{'0'}-1] compare to $partition[$item->{'1'}-1]\n";
 	if ($partition[$item->{'0'}-1] != $partition[$item->{'1'}-1]){
-	#if ( ($partition[$item->{'0'}] != $partition[$item->{'1'}]) | ($partition[$item->{'0'}] ne $partition[$item->{'1'}]) ){
             $cutSize += $item->{'2'};
 	}  
    }
@@ -192,7 +186,6 @@ sub swapNodes {
   print Dumper (@partition);
 
    for (my $i=0; $i<=$#partition; $i+=1){
-  #foreach my $item (@partition){
    print "Printing the value of i : $i \n";
         # check the status of the partition we are checking
         # if both 0, meaning unlocked so continue
@@ -205,9 +198,7 @@ sub swapNodes {
         goto EXIT; 
         }
         
-     	# compare the two nodes connected if they are in the same partition
-     	#print "first: $partition[$item] second: $partition[$item+1]\n";
-     	
+     	# compare the two nodes connected if they are in the same partition  	
   		if ($partition[$i] != $partition[$i+1]){
   			print "Enter partition swapping \n";
   		    #not in the same partition, swap
@@ -222,9 +213,6 @@ sub swapNodes {
   }
 #print "Printing swapped partition in the subroutine\n";
 #print Dumper (@partition);
-
-
-#TODO: create an output file with the best gain
 }
 
 
