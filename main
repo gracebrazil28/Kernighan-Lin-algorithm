@@ -25,7 +25,7 @@ foreach my $file (glob("$dir/*")) {
    open my $filename, "<", $file or die "can't open '$file'\n";
    #create an array that will number of edges and nodes
    my @numNodes = (); 
-   my @numEdges = ();
+   @numEdges = ();
    my @horizontal = ();
    my @vertical = ();
    my $lineNum=0;
@@ -34,7 +34,7 @@ foreach my $file (glob("$dir/*")) {
    my $j = 0;
    while(my $line = <$filename>){
          my $array_ref = +{};
-         my $filebasename = basename($filename);
+         $filebasename = basename($filename);
         
          $lineNum +=1;
          chomp $line;
@@ -85,6 +85,7 @@ foreach my $file (glob("$dir/*")) {
    my $partition_assign = $numEdges[1]/2;
    #print "Partition assignment $partition_assign \n";
    
+   # Start of the randomized partiiton
    my @partition0 = map {0} (1.. $numEdges[1]/2);
    my @partition1 = map {1} (1.. $numEdges[1]/2);
    #combine the partition vector list
@@ -94,6 +95,9 @@ foreach my $file (glob("$dir/*")) {
    print "The original partition......\n";
    print Dumper (@partition);
    
+   #Create a partition for testing purpose only, comment after it works
+   #@partition = ("1", "0", "0", "0", "1", "0", "1", "1", "1", "0", "1", "1", "0", "1", "1", "0", "1", "0", "0", "0"); 
+   
    #Create a new array for partition status, start with everything unlocked
    @gain= map {0} (1.. $numEdges[1]);
    $counter = 0;
@@ -101,7 +105,7 @@ foreach my $file (glob("$dir/*")) {
    
    #Create a new array for partition status, start with everything unlocked
    #status 0 = unlocked, status 1 = locked
-   #my @status= map {0} (1.. $numEdges[1]);
+   @status= map {0} (1.. $numEdges[1]);
    #print "The original status......\n";
    #print Dumper (@status);
    
@@ -116,20 +120,21 @@ foreach my $file (glob("$dir/*")) {
  
    print "***  Swapping nodes...... \n";
    &swapNodes(\@partition);
-   print "Printing the swapped partition in the main function...... \n";
-   print Dumper (@partition);
+   #print "Printing the swapped partition in the main function...... \n";
+   #print Dumper (@partition);
   		
-   # calculate the new cutset
+   # calculate the new cutset only when swap occurred 
    $newCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the cutsize after swapping nodes: $newCut \n";
 
-   $gain[$counter] = $newCut - $initialCut;
+   $gain[$counter] = $initialCut - $newCut;
    print "The gain of the swap is: $gain[$counter] \n";
 
 	$counter += 1;
+	print "counter: $counter\n";
 	}
 
-  print "Printing gain array \n";
+  print "**** Printing gain array \n";
   print Dumper (@gain); 
   
   
@@ -138,8 +143,14 @@ foreach my $file (glob("$dir/*")) {
   ##TODO: Swap the items in the actual data array
   
   ##TODO: Create the Output file based on the swap
+  ##TODO: send the new partition to write Output
+    open my $output, '>', '01.out';
+    print {$output} "cut " . "\n";
+    print {$output} " Partition assignment here " . "\n";
+    print {$output} " Parition assignment here" . "\n";
+    close $output;
   
-  
+  print "\n\n*************************************************************\n\n";
   exit; #only do the first file for now
 
 
@@ -158,11 +169,16 @@ sub computeCutSet {
    my $cutSize = 0;
    my @vertical = @{$vertical};
    my @partition = @{$partition};
-   
+ 
+   print "The partition we are calculating the cutset is.... \n";
+   print Dumper (@partition);  
+
    foreach my $item(@vertical){
-	if ($partition[$item->{'0'}] != $partition[$item->{'1'}]) {
+    #print "$item->{'0'}th element  compare to $item->{'1'}th element\n";
+    #print "$partition[$item->{'0'}-1] compare to $partition[$item->{'1'}-1]\n";
+	if ($partition[$item->{'0'}-1] != $partition[$item->{'1'}-1]){
+	#if ( ($partition[$item->{'0'}] != $partition[$item->{'1'}]) | ($partition[$item->{'0'}] ne $partition[$item->{'1'}]) ){
             $cutSize += $item->{'2'};
-            #print "The cut has increased to: $initialCut \n";
 	}  
    }
    #print "The final value of the initial cut is: $initialCut\n";
@@ -172,13 +188,43 @@ sub computeCutSet {
 sub swapNodes {
   #actually getting an array reference to the original partition array
   my $partition = @{$_[0]};	
+  print "Printing the partition array received in the subroutine\n";
+  print Dumper (@partition);
 
-  foreach my $item (@partition){
+   for (my $i=0; $i<=$#partition; $i+=1){
+  #foreach my $item (@partition){
+   print "Printing the value of i : $i \n";
+        # check the status of the partition we are checking
+        # if both 0, meaning unlocked so continue
+        # if both 1, meaning locked so move on to the next two
+        
+        print "status0 $status[$i] and status1 $status[$i+1]\n";
+        if (($status[$i] | $status[$i+1]) == 1){
+        print "Exiting status check and not swapping\n";
+        #go to the next item in the foreach
+        goto EXIT; 
+        }
+        
      	# compare the two nodes connected if they are in the same partition
-  		if ($partition[$item] != $partition[$item+1]){
-			($partition[$item], $partition[$item+1]) = ($partition[$item+1], $partition[$item])
-  		}
+     	#print "first: $partition[$item] second: $partition[$item+1]\n";
+     	
+  		if ($partition[$i] != $partition[$i+1]){
+  			print "Enter partition swapping \n";
+  		    #not in the same partition, swap
+			($partition[$i], $partition[$i+1]) = ($partition[$i+1], $partition[$i]);
+			($status[$i], $status[$i+1]) = (1, 1);
+
+			last;	
+  	      } 
+  	      
+  	EXIT:
+  	print "about to go back to the top of foreach\n";	
   }
 #print "Printing swapped partition in the subroutine\n";
 #print Dumper (@partition);
+
+
+#TODO: create an output file with the best gain
 }
+
+
