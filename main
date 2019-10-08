@@ -4,6 +4,7 @@ use warnings;
 use utf8;
 use File::Basename;
 use Data::Dumper qw(Dumper);
+use List::Util qw( min max );
 
 ########                                    ##########
 #                 MAIN PROGRAM                       #
@@ -15,8 +16,6 @@ use Data::Dumper qw(Dumper);
 
 my $dir = "/Users/preciousbrazil/Desktop/Sandbox/in";
 opendir(DIR, $dir) or die "Could not open $dir\n";
-#my @files = grep {-f $_ } glob ("$dir");
-
 
 #go through all the files within the input folder
 foreach my $file (glob("$dir/*")) {
@@ -34,8 +33,8 @@ foreach my $file (glob("$dir/*")) {
    my $j = 0;
    while(my $line = <$filename>){
          my $array_ref = +{};
-         $filebasename = basename($filename);
-        
+         $filebasename = basename($file);
+         $outputname = ($filebasename =~ m/.+?(?=.)/);
          $lineNum +=1;
          chomp $line;
          #first line
@@ -53,12 +52,7 @@ foreach my $file (glob("$dir/*")) {
     
             foreach my $i (0..2){
                   $horizontal[$i] = $fields[$i];
-                  $array_ref -> {$i} = $horizontal[$i];
-                 #Trying to extending this to labeling them with the input filename
-                 #$array_ref->{ $filename }{$i} = $horizontal[$i];
-                 #$array_ref->{ $filebasename }{$i} = $horizontal[$i];
-                #$array_ref -> {partition} = int rand(2);
-                 
+                  $array_ref -> {$i} = $horizontal[$i];                 
             }
 
          push @vertical, $array_ref;
@@ -70,12 +64,11 @@ foreach my $file (glob("$dir/*")) {
     
    } #close while open
 
-
   #Checking values
   #print Dumper (@numNodes);
   #print Dumper (@numEdges);
-  #print "*********** Printing the expected 2x2 array\n";
-  #print Dumper (@vertical);
+  print "*********** Printing the expected 2x2 array\n";
+  print Dumper (@vertical);
       
    #Let me know when EOF is reached
    print "File Ended.. Opening next file..\n";
@@ -141,8 +134,9 @@ foreach my $file (glob("$dir/*")) {
   
   ##TODO: Create the Output file based on the swap
   ##TODO: send the new partition to write Output
-    open my $output, '>', '01.out';
-    print {$output} "cut " . "\n";
+    my $max = max @gain;
+    open my $output, '>', '0'.$outputname.'.out';
+    print {$output} "cut $max" . "\n";
     print {$output} "Partition assignment here " . "\n";
     print {$output} "Parition assignment here" . "\n";
     close $output;
@@ -191,7 +185,7 @@ sub swapNodes {
         # if both 0, meaning unlocked so continue
         # if both 1, meaning locked so move on to the next two
         
-        print "status0 $status[$i] and status1 $status[$i+1]\n";
+        #print "status0 $status[$i] and status1 $status[$i+1]\n";
         if (($status[$i] | $status[$i+1]) == 1){
         print "Exiting status check and not swapping\n";
         #go to the next item in the foreach
@@ -209,7 +203,7 @@ sub swapNodes {
   	      } 
   	      
   	EXIT:
-  	print "about to go back to the top of foreach\n";	
+  	#print "about to go back to the top of for loop\n";	
   }
 #print "Printing swapped partition in the subroutine\n";
 #print Dumper (@partition);
