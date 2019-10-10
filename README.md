@@ -6,8 +6,12 @@
 1. cd into the location where you saved the perl script
 > cd /Desktop/Sandbox
 
-2. run the perl script
+2. run the perl script (UNIX)
 > perl KL.pl
+
+how do I know if I have the interpreter?  try 'perl -v' in your terminal, if it gives you an error you don't have it
+if you don't have it go here: http://www.perl.org/get.html
+afterwards, you should be able to do perl <space> anyperlscript.pl in your terminal
 
 3. the script will ask you to give the input folder's path name. It is recommended that you create a folder 'in' and put the input files you want ran.
 Prompt:
