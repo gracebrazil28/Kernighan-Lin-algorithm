@@ -11,6 +11,7 @@
 
 How do I know if I have the interpreter?  
 >'perl -v' 
+
 try it in your terminal, if it gives you an error you don't have it!
 If you don't have it go here: http://www.perl.org/get.html
 Afterwards, you should be able to do perl <space> anyperlscript.pl in your terminal
