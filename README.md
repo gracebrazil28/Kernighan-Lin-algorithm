@@ -27,3 +27,6 @@ You will be getting one output per input file and one file for summary. For 01.i
 
 - the 01.out will contain the final cut and the partition assignment of Node 1 to Node n
 - the summary.out will contain the input file's initial cutsize, initial execution time in calculating initial cutsize, final cutsize and time elapsed for the final cutsize
+
+### Disclosure
+I know this script can be further optimized so that the runtime is improved. I will be updating the main code whenever I get the chance to (still in college with many other projects/assignments). Otherwise, feel free to contact me/contribute to the project.
