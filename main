@@ -20,23 +20,23 @@ use List::MoreUtils qw(first_index);
 
 
 #Ask user to give the location of the input file folder
-#print "Give the input folder's path name (ex: '/Users/Desktop/in')\n>> ";
-#my $dir = <STDIN>;
-#chomp $dir;
+print "Give the input folder's path name (ex: '/Users/Desktop/in')\n>> ";
+my $dir = <STDIN>;
+chomp $dir;
 
 #my own directory for testing purposes only
-my $dir = "/Users/preciousbrazil/Desktop/Sandbox/in";
+#my $dir = "/Users/preciousbrazil/Desktop/Sandbox/in";
+
 
 opendir(DIR, $dir) or die "Could not open '$dir'! Try again!\n";
+$num_files = () = readdir(DIR);
 
 #go through all the files within the input folder
 foreach my $file (glob("$dir/*")) {
 
    my $start = time;   
    open my $filename, "<", $file or die "can't open '$file'\n";
-   
-   #apply algorithm to the first file for test
-   #open my $filename, "<", $file or die "can't open '$file'\n";
+
    #create an array that will number of edges and nodes
    @numNodes = (); 
    @numEdges = ();
@@ -86,7 +86,7 @@ foreach my $file (glob("$dir/*")) {
   #print Dumper (@vertical);
       
    #Let me know when EOF is reached
-   print "File Ended.. Opening next file..\n";
+   print "File Ended. . . . .\n";
    close($filename);
    
    
@@ -96,20 +96,13 @@ foreach my $file (glob("$dir/*")) {
    #combine the partition vector list
    push @partition, @partition1;
    #print Dumper (@partition);
-   #$partition_ref = \@partition;
-   
 
    $initialCut = &computeCutSet(\@vertical, \@partition);
    print "The value of the initial cut: $initialCut\n";
+   push (@init_cut, $initialCut);
    
-    open my $output, '>', $outputname.'initialcut.out';
-    print {$output} "cut $initialCut" . "\n";
-    my $node = 1;
-    foreach my $item (@partition){
-    print {$output} "Node $node: " .$item . "\n";
-    $node+=1;
-    }
-    close $output;
+   	my $initial_duration = time - $start;
+    push (@init_time_elapsed, $initial_duration);
  
  
  ITERATION:    
@@ -161,30 +154,22 @@ foreach my $file (glob("$dir/*")) {
 	
 	ENDFILE:
 	print "************* REACHED END FILE\n";
-	my $duration = time - $start;
+	my $end_duration = time - $start;
     print "Execution time: $duration s\n";
-    push (@time_elapsed, $duration);
+    push (@time_elapsed, $end_duration);
     
-	#Create Swap Nodes File  
 	$finalcut = 1;
     my $finalCutsize = &computeCutSet(\@vertical, \@partition);
     push (@cutarray, $finalCutsize);
     
-    #open my $swap_output, '>', 'swappednodes'. $outputname.'.out';
-    #print {$swap_output} "cut $finalCutsize" . "\n";
-    #print {$swap_output} "time elapsed $duration sec" . "\n";
-    #print {$swap_output} "Node $node_pair1: now in P$partition[$nodepair_index]" . "\n";
-    #print {$swap_output} "Node $node_pair2: now in P$partition[$nodepair_index+($numNodes[1]/2)]" . "\n";
-    #close $swap_output;
     
     #Create Output File(cut information)
     open my $finaloutput, '>', $outputname.'.out';
     # provide the cut of the partitioning
     print {$finaloutput} "cut $finalCutsize" . "\n";
-    # list the subsequent N lines
-    	foreach (@cutset) {
-  			print {$finaloutput} "$_\n";
-		}
+    foreach my $item (@partition){
+    	print {$finaloutput} "$item" . "\n";
+    }
     close $finaloutput;
   
     print "\n\n*************************************************************\n\n";
@@ -199,18 +184,15 @@ foreach my $file (glob("$dir/*")) {
 
 closedir(DIR);
 
+
 #Create SummaryOutput File  
 open my $summary, '>','summary.out';
-print {$summary} "Input file, Cutsize, Time Elapsed" . "\n";
-	for (my $i=0; $i<5; $i+=1){
+print {$summary} "Input file, Initial Cutsize, Initial Time Execution, Cutsize, Time Elapsed" . "\n";
+	for (my $i=0; $i<$num_files; $i+=1){
     	 my $j = $i+1;
-		print {$summary} "File $j,"." $cutarray[$i],"." $time_elapsed[$i] "."sec(s)" . "\n";
+		print {$summary} "File $j, $init_cut[$i], $init_time_elapsed[$i] sec(s), "." $cutarray[$i],"." $time_elapsed[$i] "."sec(s)" . "\n";
 	}
 close $summary;
-
-
-
-
 
 
 
@@ -232,10 +214,6 @@ sub computeCutSet {
 	if ($partition[$item->{'0'}-1] != $partition[$item->{'1'}-1]){
 			#print "the weight to be added is: $item->{'2'}\n";
             $cutSize += $item->{'2'};
-            #create a cutset array so we can print this in the output
-            if ($finalcut) {
-            	push @cutset,($item->{'0'}, $item->{'1'});
-            } 
 	}  
    }
    #print "The final value of the initial cut is: $initialCut\n";
@@ -309,9 +287,3 @@ $secondnode =  $nodepair_index + ($numNodes[1]/2);
 ($_[$nodepair_index], $_[$secondnode]) =  ($_[$secondnode], $_[$nodepair_index]);
  
 }
-
-
-
-
-
-
