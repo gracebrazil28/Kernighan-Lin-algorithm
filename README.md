@@ -30,3 +30,5 @@ You will be getting one output per input file and one file for summary. For 01.i
 
 ### Disclosure
 I know this script can be further optimized so that the runtime is improved. I will be updating the main code whenever I get the chance to (still in college with many other projects/assignments). Otherwise, feel free to contact me/contribute to the project.
+
+https://gracebrazilprojects.wordpress.com/portfolio/simple-implementation-of-the-kernighan-lin-algorithm/
